@@ -1,34 +1,29 @@
 import logging
-from logging.handlers import RotatingFileHandler
+import os
 
-def setup_advanced_logger():
-    # Create a logger
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+def app_logger(name: str) -> logging.Logger:
+    try:
+        path = os.path.dirname(os.path.realpath(__file__))
+        log_dir = os.path.join(path, "logs")
+        log_file = os.path.join(log_dir, f"{name}.log")
+        if not os.path.exists(log_dir):
+            os.mkdir(log_dir)
 
-    # Create a formatter for the handlers
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        console_formatter = logging.Formatter("%(levelname)s -- %(message)s")
 
-    # Create a file handler for writing logs to a file
-    file_handler = RotatingFileHandler('app.log', maxBytes=100000, backupCount=5)  # Rotate log files when they reach 100KB, keep up to 5 backups
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(file_formatter)
 
-    # Create a console handler to display logs on the console
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)  # Only display logs with INFO level or higher on the console
-    console_handler.setFormatter(formatter)
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)  # Adjust the level to your preference
+        console_handler.setFormatter(console_formatter)
 
-    # Add the handlers to the logger
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-    return logger
-
-# Usage example:
-logger = setup_advanced_logger()
-logger.debug('This is a debug message')
-logger.info('This is an info message')
-logger.warning('This is a warning message')
-logger.error('This is an error message')
-logger.critical('This is a critical message')
+        logger = logging.getLogger(name)
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
+        logger.setLevel(logging.DEBUG)
+        return logger
+    except OSError:
+        raise RuntimeError("Unable to Load App Logger")
