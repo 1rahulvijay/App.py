@@ -11,7 +11,7 @@ def read_csv_with_custom_delimiter(file_path, delimiter='^', expected_columns=54
                 adjusted_row = row[:expected_columns]  # Start with the original row content
                 if special_column < len(row):
                     combined_col = row[special_column]
-                    for i in range(special_column + 1, min(special_column + 4, len(row))):  # Assuming columns 50 and 51 should not be merged into column 41
+                    for i in range(special_column + 1, min(special_column + 4, len(row))):  # Adjust range based on your column structure
                         combined_col += delimiter + row[i]
                     adjusted_row[special_column] = combined_col
                 else:
